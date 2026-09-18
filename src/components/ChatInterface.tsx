@@ -8,6 +8,7 @@ interface Message {
   role: 'user' | 'suspect';
   content: string;
   timestamp: string;
+  mode?: 'gemini' | 'openrouter' | 'demo';
 }
 
 export default function ChatInterface() {
@@ -81,6 +82,7 @@ export default function ChatInterface() {
         role: 'suspect',
         content: data.suspect_dialogue,
         timestamp: getTimestamp(),
+        mode: data.mode || 'demo',
       };
 
       setMessages((prev) => [...prev, suspectMessage]);
@@ -95,6 +97,7 @@ export default function ChatInterface() {
         role: 'suspect',
         content: '*Static crackles* ... I\'m not saying anything more until my lawyer arrives.',
         timestamp: getTimestamp(),
+        mode: 'demo',
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
@@ -195,10 +198,21 @@ export default function ChatInterface() {
                 >
                   <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                 </div>
-                <div className={`flex items-center gap-1.5 mt-1 ${msg.role === 'user' ? 'justify-end' : 'justify-start pl-1'}`}>
+                <div className={`flex items-center gap-2 mt-1 ${msg.role === 'user' ? 'justify-end' : 'justify-start pl-1'}`}>
                   <span className="text-[10px] text-[#333] font-mono">{msg.timestamp}</span>
                   {msg.role === 'user' && (
                     <span className="text-[10px] text-[#333]">✓</span>
+                  )}
+                  {msg.role === 'suspect' && msg.mode && (
+                    <span className={`text-[9px] px-1.5 py-0.5 rounded font-mono uppercase tracking-wider font-semibold ${
+                      msg.mode === 'openrouter'
+                        ? 'bg-purple-950/70 text-purple-300 border border-purple-800/50'
+                        : msg.mode === 'gemini'
+                        ? 'bg-emerald-950/70 text-emerald-300 border border-emerald-800/50'
+                        : 'bg-amber-950/70 text-amber-300 border border-amber-800/50'
+                    }`}>
+                      {msg.mode === 'openrouter' ? '⚡ OpenRouter Live AI' : msg.mode === 'gemini' ? '🤖 Gemini Live AI' : '📝 Scripted Demo'}
+                    </span>
                   )}
                 </div>
               </div>
