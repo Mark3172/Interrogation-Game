@@ -1,9 +1,9 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "The Interrogation Room",
-  description: "A detective mystery game powered by AI",
+  title: "The Interrogation Room | AI Detective Game",
+  description: "Interrogate an AI suspect to solve a locked-room mystery. A browser-based detective game powered by Google Gemini.",
 };
 
 export default function RootLayout({
@@ -13,7 +13,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-[#0a0a0f] text-[#e0e0e0] antialiased">
+      <body className="bg-[#07070d] text-[#e0e0e0] antialiased">
+        <div className="scanline-overlay" />
         {children}
       </body>
     </html>

@@ -19,6 +19,12 @@ export default function ConfessionModal({ turnsTaken, onClose }: ConfessionModal
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fetchingLeaderboard, setFetchingLeaderboard] = useState(false);
+  const [showStamp, setShowStamp] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowStamp(true), 400);
+    return () => clearTimeout(timer);
+  }, []);
 
   const fetchLeaderboard = async () => {
     setFetchingLeaderboard(true);
@@ -65,99 +71,131 @@ export default function ConfessionModal({ turnsTaken, onClose }: ConfessionModal
     fetchLeaderboard();
   }, []);
 
+  const getMedal = (idx: number) => {
+    if (idx === 0) return '🥇';
+    if (idx === 1) return '🥈';
+    if (idx === 2) return '🥉';
+    return `#${idx + 1}`;
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center animate-fade-in">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/85 backdrop-blur-md" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative bg-[#14141f] border border-[#2a2a3e] rounded-2xl p-8 max-w-md w-full mx-4 animate-scale-in shadow-2xl">
-        {/* Confession badge */}
-        <div className="flex justify-center mb-6">
-          <div className="w-20 h-20 rounded-full bg-[#2ecc71]/20 flex items-center justify-center">
-            <svg className="w-10 h-10 text-[#2ecc71]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-        </div>
+      <div className="relative bg-[#0e0e1a] border border-[#1e1e35] rounded-2xl max-w-lg w-full mx-4 animate-scale-in shadow-[0_0_80px_rgba(46,204,113,0.1)] overflow-hidden">
+        {/* Top accent line */}
+        <div className="h-1 bg-gradient-to-r from-[#2ecc71] via-[#f39c12] to-[#2ecc71]" />
 
-        <h2 className="text-2xl font-bold text-center text-white mb-1">🎉 Confession Secured!</h2>
-        <p className="text-center text-[#888] mb-1">Dr. Vance has cracked under pressure.</p>
-        <p className="text-center text-[#f39c12] font-semibold mb-6">
-          Solved in {turnsTaken} turn{turnsTaken !== 1 ? 's' : ''}!
-        </p>
-
-        {!submitted ? (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-xs text-[#888] uppercase tracking-widest mb-2">
-                Enter your detective name
-              </label>
-              <input
-                id="name"
-                type="text"
-                value={playerName}
-                onChange={(e) => setPlayerName(e.target.value)}
-                placeholder="Detective..."
-                maxLength={30}
-                className="w-full bg-[#1a1a2e] border border-[#2a2a3e] rounded-lg px-4 py-3 text-white placeholder-[#555] focus:outline-none focus:border-[#2ecc71] transition-colors"
-                autoFocus
-              />
+        <div className="p-8">
+          {/* Case Closed Stamp */}
+          <div className="relative flex justify-center mb-6">
+            <div className="w-24 h-24 rounded-2xl bg-[#2ecc71]/10 border-2 border-[#2ecc71]/30 flex items-center justify-center">
+              <svg className="w-12 h-12 text-[#2ecc71]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
-            <button
-              type="submit"
-              disabled={!playerName.trim() || isSubmitting}
-              className="w-full bg-[#2ecc71] hover:bg-[#27ae60] disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold py-3 rounded-lg transition-colors"
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit to Leaderboard'}
-            </button>
-          </form>
-        ) : (
-          <div className="text-center text-[#2ecc71] font-semibold mb-4">
-            ✅ Score submitted!
-          </div>
-        )}
-
-        {/* Leaderboard */}
-        <div className="mt-6 pt-6 border-t border-[#2a2a3e]">
-          <h3 className="text-xs font-semibold text-[#f39c12] uppercase tracking-widest mb-3 text-center">
-            🏆 Top 5 Detectives
-          </h3>
-          {fetchingLeaderboard ? (
-            <p className="text-center text-[#888] text-sm">Loading...</p>
-          ) : leaderboard.length === 0 ? (
-            <p className="text-center text-[#888] text-sm">No entries yet. Be the first!</p>
-          ) : (
-            <div className="space-y-2">
-              {leaderboard.map((entry, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center justify-between bg-[#1a1a2e] rounded-lg px-4 py-2.5 border border-[#2a2a3e]"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className={`font-bold text-sm ${
-                      idx === 0 ? 'text-[#f39c12]' : idx === 1 ? 'text-[#c0c0c0]' : idx === 2 ? 'text-[#cd7f32]' : 'text-[#888]'
-                    }`}>
-                      #{idx + 1}
-                    </span>
-                    <span className="text-white text-sm">{entry.player_name}</span>
-                  </div>
-                  <span className="text-[#2ecc71] text-sm font-mono font-bold">
-                    {entry.turns_taken} turn{entry.turns_taken !== 1 ? 's' : ''}
-                  </span>
+            {showStamp && (
+              <div className="absolute -top-2 -right-2 stamp-in">
+                <div className="px-3 py-1.5 rounded border-2 border-[#e74c3c] bg-[#e74c3c]/10">
+                  <span className="text-[#e74c3c] font-black text-xs tracking-[0.2em]">CASE CLOSED</span>
                 </div>
-              ))}
+              </div>
+            )}
+          </div>
+
+          <h2 className="text-2xl font-black text-center text-white mb-1 tracking-wide">
+            Confession Secured
+          </h2>
+          <p className="text-center text-[#666] mb-1 text-sm">Dr. Vance has cracked under interrogation.</p>
+          <div className="flex justify-center mb-6">
+            <div className="px-4 py-1.5 rounded-full bg-[#f39c12]/10 border border-[#f39c12]/30">
+              <span className="text-[#f39c12] font-bold text-sm">
+                Solved in {turnsTaken} turn{turnsTaken !== 1 ? 's' : ''}
+              </span>
+            </div>
+          </div>
+
+          {!submitted ? (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="name" className="block text-[10px] text-[#555] uppercase tracking-[0.15em] font-bold mb-2">
+                  Enter your detective name
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  value={playerName}
+                  onChange={(e) => setPlayerName(e.target.value)}
+                  placeholder="Detective..."
+                  maxLength={30}
+                  className="w-full bg-[#111122] border border-[#1e1e35] rounded-xl px-4 py-3.5 text-white placeholder-[#333] focus:outline-none focus:border-[#2ecc71]/50 focus:shadow-[0_0_20px_rgba(46,204,113,0.1)] transition-all text-sm"
+                  autoFocus
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={!playerName.trim() || isSubmitting}
+                className="w-full bg-gradient-to-r from-[#2ecc71] to-[#27ae60] hover:from-[#27ae60] hover:to-[#229954] disabled:opacity-40 disabled:cursor-not-allowed text-black font-black py-3.5 rounded-xl transition-all text-sm tracking-wide uppercase shadow-[0_0_20px_rgba(46,204,113,0.2)]"
+              >
+                {isSubmitting ? 'Submitting...' : '🏆 Submit to Leaderboard'}
+              </button>
+            </form>
+          ) : (
+            <div className="text-center py-3 px-4 rounded-xl bg-[#2ecc71]/10 border border-[#2ecc71]/20">
+              <p className="text-[#2ecc71] font-bold">✅ Score recorded, detective!</p>
             </div>
           )}
-        </div>
 
-        {/* Play again */}
-        <button
-          onClick={() => window.location.reload()}
-          className="w-full mt-4 bg-transparent border border-[#2a2a3e] hover:border-[#888] text-[#888] hover:text-white font-semibold py-2.5 rounded-lg transition-colors text-sm"
-        >
-          🔄 Play Again
-        </button>
+          {/* Leaderboard */}
+          <div className="mt-6 pt-6 border-t border-[#1e1e35]">
+            <h3 className="text-[10px] font-bold text-[#f39c12] uppercase tracking-[0.15em] mb-4 text-center">
+              🏆 Top 5 Detectives
+            </h3>
+            {fetchingLeaderboard ? (
+              <div className="flex justify-center py-4">
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 bg-[#555] rounded-full typing-dot" />
+                  <div className="w-2 h-2 bg-[#555] rounded-full typing-dot" />
+                  <div className="w-2 h-2 bg-[#555] rounded-full typing-dot" />
+                </div>
+              </div>
+            ) : leaderboard.length === 0 ? (
+              <p className="text-center text-[#444] text-sm py-2">No entries yet. Be the first!</p>
+            ) : (
+              <div className="space-y-2">
+                {leaderboard.map((entry, idx) => (
+                  <div
+                    key={idx}
+                    className={`flex items-center justify-between rounded-xl px-4 py-3 border transition-all ${
+                      idx === 0
+                        ? 'bg-[#f39c12]/5 border-[#f39c12]/20'
+                        : 'bg-[#111122] border-[#1e1e35]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-base w-8">{getMedal(idx)}</span>
+                      <span className="text-white text-sm font-semibold">{entry.player_name}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[#2ecc71] text-sm font-mono font-bold">{entry.turns_taken}</span>
+                      <span className="text-[#444] text-xs">turns</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Play again */}
+          <button
+            onClick={() => window.location.reload()}
+            className="w-full mt-5 bg-transparent border border-[#1e1e35] hover:border-[#555] hover:bg-[#111122] text-[#555] hover:text-white font-bold py-3 rounded-xl transition-all text-xs tracking-widest uppercase"
+          >
+            🔄 New Interrogation
+          </button>
+        </div>
       </div>
     </div>
   );
